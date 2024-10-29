@@ -1,0 +1,100 @@
+{
+    "CAM": {
+        "1own_FullName": {"key": "Full Name", "lambda": "None"},
+        "1own_AKA": {"key": "Full Name", "lambda": "None"},
+        "1own_DOB": {"key": "Date Of Birth", "lambda": "None"},
+        "User_D613_SSNTaxIDOwner1": {"key": "Tax ID", "lambda": "lambda x: str(x)"},
+        "1own_H_Addr123": {"key": "Primary Street Address", "lambda": "lambda x: x if pd.isnull(client['Primary Secondary Address'].values[0]) else x + ', ' + client['Primary Secondary Address'].values[0]"},
+        "1own_H_City": {"key": "Primary City", "lambda": "None"},
+        "1own_H_State": {"key": "Primary State", "lambda": "None"},
+        "1own_H_Zip": {"key": "Primary Zip", "lambda": "lambda x: str(x)"},
+        "1own_H_Phone": {"key": "Primary Phone", "lambda": "None"},
+        "1own_H_Email": {"key": "Primary Email", "lambda": "None"},
+        "1own_Occupation": {"key": "Job Title", "lambda": "None"},
+        "1own_Employer": {"key": "Employer", "lambda": "None"},
+        "1own_O_Addr123": {"key": "Work Address Street Address", "lambda": "lambda x: x if pd.isnull(client['Work Address Secondary Address'].values[0]) else x + ', ' + client['Work Address Secondary Address'].values[0]"},
+        "1own_O_City": {"key": "Work Address City", "lambda": "None"},
+        "1own_O_State": {"key": "Work Address State", "lambda": "None"},
+        "1own_O_Zip": {"key": "Work Address Zip", "lambda": "lambda x: str(x)"},
+        "1own_GOV_ID": {"key": "Drivers License Number", "lambda": "None"},
+        "1own_GOV_IDExp": {"key": "Drivers License Expiration Date", "lambda": "None"},
+        "1own_GOV_IDState": {"key": "Drivers License State", "lambda": "None"},
+        "Check_list": [3, 32]
+    },
+    "Alt Investment Checklist": {
+        "1own_FullName": {"key": "Full Name", "lambda": "None"},
+        "Check_list": []        
+    },
+    "CAM Addendum": {
+        "Check_list": []
+    },
+    "Investment Advisory Services Agreement": {
+        "1own_FullName": {"key": "Full Name", "lambda": "None"},
+        "1own_M_Addr123": {"key": "Primary Street Address", "lambda": "lambda x: x if pd.isnull(client['Primary Secondary Address'].values[0]) else x + ', ' + client['Primary Secondary Address'].values[0]"},
+        "1own_M_City": {"key": "Primary City", "lambda": "None"},
+        "1own_M_State": {"key": "Primary State", "lambda": "None"},
+        "1own_M_Zip": {"key": "Primary Zip", "lambda": "lambda x: str(x)"},
+        "1own_O_Phone": {"key": "Primary Phone", "lambda": "None"},
+        "1own_H_Mobile": {"key": "Primary Mobile", "lambda": "None"},
+        "1own_H_Email": {"key": "Primary Email", "lambda": "None"},
+        "Check_list": []
+    },
+    "NQCAF Addendum": {
+        "Check_list": []
+    },
+    "NQCAF": {
+        "1own_FullName": {"key": "Full Name", "lambda": "None"},
+        "User_D613_1ownAcctName1": {"key": "Full Name", "lambda": "None"}, 
+        "1own_DOB": {"key": "Date Of Birth", "lambda": "None"},
+        "User_D613_SSNTaxIDOwner1": {"key": "Tax ID", "lambda": "lambda x: str(x)"},
+        "1own_H_Addr123": {"key": "Primary Street Address", "lambda": "lambda x: x if pd.isnull(client['Primary Secondary Address'].values[0]) else x + ', ' + client['Primary Secondary Address'].values[0]"},
+        "1own_H_City": {"key": "Primary City", "lambda": "None"},
+        "1own_H_State": {"key": "Primary State", "lambda": "None"},
+        "1own_H_Zip": {"key": "Primary Zip", "lambda": "lambda x: str(x)"},
+        "1own_H_Phone": {"key": "Primary Phone", "lambda": "None"},
+        "1own_H_Email": {"key": "Primary Email", "lambda": "None"},
+        "1own_Occupation": {"key": "Job Title", "lambda": "None"},
+        "1own_Employer": {"key": "Employer", "lambda": "None"},
+        "1own_GOV_ID": {"key": "Drivers License Number", "lambda": "None"},
+        "1own_GOV_IDExpire": {"key": "Drivers License Expiration Date", "lambda": "None"},
+        "1own_GOV_IDState": {"key": "Drivers License State", "lambda": "None"},
+        "Check_list": [4, 60]
+    },
+    "Private Placement Disclosure": {
+        "1own_FullName": {"key": "Full Name", "lambda": "None"},
+        "1own_SNN": {"key": "Tax ID", "lambda": "lambda x: str(x)"},
+        "Check_list": []
+    },
+    "QCAF": {
+        "1own_FullName": {"key": "Full Name", "lambda": "None"},
+        "User_D613_1ownAcctName1": {"key": "Full Name", "lambda": "None"},
+        "1own_DOB": {"key": "Date Of Birth", "lambda": "None"},
+        "User_D613_SSNTaxIDOwner1": {"key": "Tax ID", "lambda": "lambda x: str(x)"},
+        "1own_H_Addr123": {"key": "Primary Street Address", "lambda": "lambda x: x if pd.isnull(client['Primary Secondary Address'].values[0]) else x + ', ' + client['Primary Secondary Address'].values[0]"},
+        "1own_H_City": {"key": "Primary City", "lambda": "None"},
+        "1own_H_State": {"key": "Primary State", "lambda": "None"},
+        "1own_H_Zip": {"key": "Primary Zip", "lambda": "lambda x: str(x)"},
+        "1own_H_Phone": {"key": "Primary Phone", "lambda": "None"},
+        "1own_H_Email": {"key": "Primary Email", "lambda": "None"},
+        "1own_Occupation": {"key": "Job Title", "lambda": "None"},
+        "1own_Employer": {"key": "Employer", "lambda": "None"},
+        "1own_GOV_ID": {"key": "Drivers License Number", "lambda": "None"},
+        "1own_GOV_IDExpire": {"key": "Drivers License Expiration Date", "lambda": "None"},
+        "1own_GOV_IDState": {"key": "Drivers License State", "lambda": "None"},
+        "Check_list": []
+    },
+    "Retirement Plan Rollover": {
+        "1own_FullName": {"key": "Full Name", "lambda": "None"},
+        "Check_list": []
+    },
+    "Third Party Manager": {
+        "1own_FullName": {"key": "Full Name", "lambda": "None"},
+        "1own_H_Email": {"key": "Email", "lambda": "None"},
+        "1own_H_FullAddr": {"key": "Primary Address", "lambda": "lambda x: x if pd.isnull(client['Primary Secondary Address'].values[0]) else x + ', ' + client['Primary Secondary Address'].values[0] + ', ' + client['Primary City'].values[0] + ', ' + client['Primary State'].values[0] + ', ' + client['Primary Zip'].values[0]"},
+        "Check_list": []
+    },
+    "VA Disclosure": {
+        "1own_FullName": {"key": "Full Name", "lambda": "None"},        
+        "Check_list": []
+    }
+}
