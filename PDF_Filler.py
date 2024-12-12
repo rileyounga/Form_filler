@@ -1,78 +1,237 @@
 import subprocess
 import json
+import tkinter as tk
+from tkinter import filedialog, ttk
 import pandas as pd
 import pdfrw
 from pdfrw import PdfReader
 from pdfrw.objects import pdfstring
 
-# change these to match your file locations
-CLIENT_FILE = r"C:\Users\riley\OneDrive\Documents\Projects\Automation\Carson\Form Population for AY.csv"
-FORM_FILE = r"C:\Users\riley\OneDrive\Documents\Projects\Automation\Carson\Austin Young Shared Folder\Concorde Forms\QCAF.pdf"
 ADOBE_ACROBAT_PATH = r"C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe"
 
-#FORM_FILE = input("")
-
-def get_data(client_file, form_file):
+def get_files():
     """
-    Retrieves client data and a PDF template based on the provided form.
+    Function to create a GUI for selecting files using file dialogs.
 
     Args:
-        form: The PDF form to retrieve data for.
+        None
 
     Returns:
-        A tuple containing the PDF template, client data, and representative data.
+        dict: A dictionary containing file locations for form and client files.
     """
-    clients = pd.read_csv(client_file)
 
-    representative = pd.DataFrame({
-        'Number': ['4619'],
-        'Name': ['Austin Young'],
-        'Client': ['Carson Stoltz'],
-    })
+    # Create the main window
+    root = tk.Tk()
+    root.title("File Upload Form")
 
-    name = representative['Client'].values[0]
+    # Add padding (margins) to the main window
+    root.configure(padx=20, pady=20)
 
-    try:
-        client = clients[clients['Full Name'] == name]
-    except IndexError:
-        print(f'No client found with name {name}')
-        exit()
+    # Define variables to store file paths
+    form_file_location = tk.StringVar()
+    client1_file_location = tk.StringVar()
+    client2_file_location = tk.StringVar()
+    client3_file_location = tk.StringVar()
+    client4_file_location = tk.StringVar()
 
-    try:
-        template = PdfReader(form_file)
-    except pdfrw.PdfReaderError:
-        print(f'{form_file} is not a valid PDF')
-        exit()
+    # Status variables for indicating file attachment
+    form_status = tk.StringVar()
+    client1_status = tk.StringVar()
+    client2_status = tk.StringVar()
+    client3_status = tk.StringVar()
+    client4_status = tk.StringVar()
 
-    form = form_file.split('\\')[-1].split('.')[0]
-    return template, client, form
+    # Functions to open file dialogs and update status labels
+    def select_form_file():
+        file_path = filedialog.askopenfilename(initialdir="C:/Users/riley/OneDrive/Documents/Projects/Automation/Carson 2/Austin Young Shared Folder/Concorde Forms")
+        if file_path:
+            form_file_location.set(file_path)
+            form_status.set("File Attached")
+        else:
+            form_status.set("")
 
-def form_filler(template, client, form, debug=False):
+    def select_client1_file():
+        file_path = filedialog.askopenfilename()
+        if file_path:
+            client1_file_location.set(file_path)
+            client1_status.set("File Attached")
+        else:
+            client1_status.set("")
+
+    def select_client2_file():
+        file_path = filedialog.askopenfilename()
+        if file_path:
+            client2_file_location.set(file_path)
+            client2_status.set("File Attached")
+        else:
+            client2_status.set("")
+
+    def select_client3_file():
+        file_path = filedialog.askopenfilename()
+        if file_path:
+            client3_file_location.set(file_path)
+            client3_status.set("File Attached")
+        else:
+            client3_status.set("")
+
+    def select_client4_file():
+        file_path = filedialog.askopenfilename()
+        if file_path:
+            client4_file_location.set(file_path)
+            client4_status.set("File Attached")
+        else:
+            client4_status.set("")
+
+    # Function to handle Submit button
+    def submit():
+        # Close the GUI
+        root.quit()
+
+    # Create a style for green text
+    style = ttk.Style()
+    style.configure("Green.TLabel", foreground="green")
+
+    # Create the GUI elements using ttk for improved styling
+    # FORM Label and File Upload button
+    form_label = ttk.Label(root, text="FORM:")
+    form_label.grid(row=0, column=0, padx=10, pady=5, sticky='e')
+    form_button = ttk.Button(root, text="File Upload", command=select_form_file)
+    form_button.grid(row=0, column=1, padx=10, pady=5)
+    form_status_label = ttk.Label(root, textvariable=form_status, style="Green.TLabel")
+    form_status_label.grid(row=0, column=2, padx=10, pady=5, sticky='w')
+
+    # Spacer between FORM and CLIENTS
+    spacer1 = ttk.Separator(root, orient='horizontal')
+    spacer1.grid(row=1, column=0, columnspan=3, pady=10, sticky='ew')
+
+    # CLIENT 1
+    client1_label = ttk.Label(root, text="CLIENT 1:")
+    client1_label.grid(row=2, column=0, padx=10, pady=5, sticky='e')
+    client1_button = ttk.Button(root, text="File Upload", command=select_client1_file)
+    client1_button.grid(row=2, column=1, padx=10, pady=5)
+    client1_status_label = ttk.Label(root, textvariable=client1_status, style="Green.TLabel")
+    client1_status_label.grid(row=2, column=2, padx=10, pady=5, sticky='w')
+
+    # CLIENT 2
+    client2_label = ttk.Label(root, text="CLIENT 2:")
+    client2_label.grid(row=3, column=0, padx=10, pady=5, sticky='e')
+    client2_button = ttk.Button(root, text="File Upload", command=select_client2_file)
+    client2_button.grid(row=3, column=1, padx=10, pady=5)
+    client2_status_label = ttk.Label(root, textvariable=client2_status, style="Green.TLabel")
+    client2_status_label.grid(row=3, column=2, padx=10, pady=5, sticky='w')
+
+    # CLIENT 3
+    client3_label = ttk.Label(root, text="CLIENT 3:")
+    client3_label.grid(row=4, column=0, padx=10, pady=5, sticky='e')
+    client3_button = ttk.Button(root, text="File Upload", command=select_client3_file)
+    client3_button.grid(row=4, column=1, padx=10, pady=5)
+    client3_status_label = ttk.Label(root, textvariable=client3_status, style="Green.TLabel")
+    client3_status_label.grid(row=4, column=2, padx=10, pady=5, sticky='w')
+
+    # CLIENT 4
+    client4_label = ttk.Label(root, text="CLIENT 4:")
+    client4_label.grid(row=5, column=0, padx=10, pady=5, sticky='e')
+    client4_button = ttk.Button(root, text="File Upload", command=select_client4_file)
+    client4_button.grid(row=5, column=1, padx=10, pady=5)
+    client4_status_label = ttk.Label(root, textvariable=client4_status, style="Green.TLabel")
+    client4_status_label.grid(row=5, column=2, padx=10, pady=5, sticky='w')
+
+    # Spacer between CLIENTS and Submit button
+    spacer2 = ttk.Separator(root, orient='horizontal')
+    spacer2.grid(row=6, column=0, columnspan=3, pady=10, sticky='ew')
+
+    # Submit Button, right-aligned
+    submit_button = ttk.Button(root, text="Submit", command=submit)
+    submit_button.grid(row=7, column=2, pady=10, sticky='e')
+
+    root.mainloop()
+
+    # After the GUI is closed, get the values
+    form_file = form_file_location.get()
+    client1_file = client1_file_location.get()
+    client2_file = client2_file_location.get()
+    client3_file = client3_file_location.get()
+    client4_file = client4_file_location.get()
+
+    # Store file locations
+    file_locations = {
+        'form_file': form_file,
+        'client1_file': client1_file,
+        'client2_file': client2_file,
+        'client3_file': client3_file,
+        'client4_file': client4_file
+    }
+
+    # Output the selected files
+    print("Selected Files:")
+    for key, value in file_locations.items():
+        if value:
+            print(f"{key}: {value}")
+        else:
+            print(f"{key}: No file selected")
+
+    # Return the file locations if needed
+    return file_locations
+
+def form_filler(file_locations, debug=False):
     """
-    Fills a PDF template with data from a client.
+    Fills a PDF form with data from a number of CSV files.
 
     Args:
-        template (pdfrw.PdfReader): The PDF template to fill.
-        client (pd.DataFrame): The client data to fill the template with.
-        debug (bool, optional): Whether to print debug information. Defaults to True.
+        file_locations (dict): A dictionary containing file locations for form and client files.
+        debug (bool, optional): If True, print debug messages. Defaults to False.
 
     Returns:
         None
-    """               
+    """          
     i = 0
+    client1 = None
+    client2 = None
+    client3 = None
+    client4 = None
+    template = PdfReader(file_locations['form_file'])
+    form = file_locations['form_file'].split('/')[-1].split('.')[0]
+
+    if file_locations['client1_file']:
+        client1 = pd.read_csv(file_locations['client1_file'])
+    else:
+        if debug:
+            print('No client file selected')
+        return
+    if file_locations['client2_file']:
+        client2 = pd.read_csv(file_locations['client2_file'])
+    if file_locations['client3_file']:
+        client3 = pd.read_csv(file_locations['client3_file'])
+    if file_locations['client4_file']:
+        client4 = pd.read_csv(file_locations['client4_file'])
+
     try:
         field_map = json.load(open('form_fields.json'))[form]
     except KeyError:
-        print(f'Form {form} not found in form_fields.json')
+        if debug:
+            print(f'Form {form} not found in form_fields.json')
         exit()
 
+    check_list = field_map['Check_list']
+    check_list_eval = []
+    for x in check_list:
+        try:
+            x = eval(x)
+        except:
+            continue
+        if x is not None:
+            check_list_eval.append(x)
+
     for page in template.pages:
+        # For each page in the pdf
         annotations = page['/Annots']
         if annotations is None:
             continue
 
+        # For each item on the page
         for annotation in annotations:
             i += 1
+            # If an annotation has no text, defer to its parent
             if not annotation['/T']:
                 kid = annotation
                 annotation = annotation['/Parent']
@@ -84,29 +243,30 @@ def form_filler(template, client, form, debug=False):
             if ft == '/Tx':
                 if debug:
                     print(f'Text field: {key} {i}')
-                
+
                 def text_box(annotation, value):
+                    if value is None or 'nan' in str(value):
+                        return
                     pdfstr = pdfstring.PdfString.encode(value)
                     annotation.update(pdfrw.PdfDict(V=pdfstr))
 
                 try:
-                    rep_col = field_map[key]['key']
-                    transform = field_map[key]['lambda']
-                    value = client[rep_col].values[0]
+                    json_resp = field_map[key]
+
+                except Exception:
                     if debug:
-                        print(f'{value} {transform}')
-                        
-                    if transform != 'None':
-                        value = eval(transform)(value)
-                    
-                except KeyError:
-                    if debug:
-                        print(f'KeyError: {key}')
+                        print(f'{key} not found in form_fields.json')
                     continue
-                
+
+                try:
+                    value = eval(json_resp)
+                except Exception:
+                    if debug:
+                        print(f'Error evaluating {json_resp}')
+                    continue
+
                 text_box(annotation, value)
 
-                
             elif ft == '/Btn':
                 if ff and int(ff) & 1 << 15:
                     if debug:
@@ -115,8 +275,8 @@ def form_filler(template, client, form, debug=False):
                     #TODO: radio button
                 else:
                     if debug:
-                            print(f'Checkbox field: {key} {i}')
-                    
+                        print(f'Checkbox field: {key} {i}')
+
                     def checkmark(annotation):
                         try:
                             for child in annotation['/Kids']:
@@ -136,16 +296,10 @@ def form_filler(template, client, form, debug=False):
 
                         except:
                             pass
-                    try:
-                        check_list = field_map['Check_list']
-                    except KeyError:
-                        if debug:
-                            print(f'KeyError: {key}')
-                        continue
 
-                    if i in check_list:
+                    if i in check_list_eval:
                         checkmark(annotation)
-                    
+
             elif ft == '/Ch':
                 #TODO: combo box
 
@@ -159,12 +313,15 @@ def form_filler(template, client, form, debug=False):
     template.Root.AcroForm.update(pdfrw.PdfDict(NeedAppearances=pdfrw.PdfObject('true')))
     pdfrw.PdfWriter().write('filled.pdf', template)
 
+def main():
+    file_locations = get_files()
+    form_filler(file_locations, debug=True)
 
-if __name__ == '__main__':
-    template, client, form = get_data(CLIENT_FILE, FORM_FILE)
-    form_filler(template, client, form, debug=False)
     try:
         subprocess.Popen([ADOBE_ACROBAT_PATH, '/A', 'open', 'filled.pdf'], shell=True)
     except FileNotFoundError:
         print(f'{ADOBE_ACROBAT_PATH} not found')
         exit()
+
+if __name__ == '__main__':
+    main()
