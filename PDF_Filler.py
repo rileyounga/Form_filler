@@ -1,8 +1,11 @@
 import subprocess
 import json
+import time
+import re
 import tkinter as tk
 from tkinter import filedialog, ttk
 import pandas as pd
+import numpy as np
 import pdfrw
 from pdfrw import PdfReader
 from pdfrw.objects import pdfstring
@@ -43,7 +46,7 @@ def get_files():
 
     # Functions to open file dialogs and update status labels
     def select_form_file():
-        file_path = filedialog.askopenfilename(initialdir="C:/Users/riley/OneDrive/Documents/Projects/Automation/Carson 2/Austin Young Shared Folder/Concorde Forms")
+        file_path = filedialog.askopenfilename(initialdir="")
         if file_path:
             form_file_location.set(file_path)
             form_status.set("File Attached")
@@ -183,47 +186,120 @@ def form_filler(file_locations, debug=False):
 
     Returns:
         None
-    """          
-    i = 0
-    client1 = None
-    client2 = None
-    client3 = None
-    client4 = None
-    template = PdfReader(file_locations['form_file'])
-    form = file_locations['form_file'].split('/')[-1].split('.')[0]
+    """
+    def prepare_data(file_locations, debug):
+        """
+        Prepares data for filling a PDF form.
 
-    if file_locations['client1_file']:
-        client1 = pd.read_csv(file_locations['client1_file'])
-    else:
-        if debug:
-            print('No client file selected')
-        return
-    if file_locations['client2_file']:
-        client2 = pd.read_csv(file_locations['client2_file'])
-    if file_locations['client3_file']:
-        client3 = pd.read_csv(file_locations['client3_file'])
-    if file_locations['client4_file']:
-        client4 = pd.read_csv(file_locations['client4_file'])
+        Args:
+            file_locations (dict): A dictionary containing file locations for form and client files.
+            debug (bool, optional): If True, print debug messages. Defaults to False.
 
-    try:
-        field_map = json.load(open('form_fields.json'))[form]
-    except KeyError:
-        if debug:
-            print(f'Form {form} not found in form_fields.json')
-        exit()
+        Returns:
+            tuple: A tuple containing the template PDF, general field map, field map for the current form, and 
+            a list of check boxes to be filled.
+        """
+        client1 = None
+        client2 = None
+        client3 = None
+        client4 = None
+        template = PdfReader(file_locations['form_file'])
+        form = file_locations['form_file'].split('/')[-1].split('.')[0]
 
-    check_list = field_map['Check_list']
-    check_list_eval = []
-    for x in check_list:
+        if file_locations['client1_file']:
+            client1 = pd.read_csv(file_locations['client1_file']).replace(np.nan, None)
+        else:
+            if debug:
+                print('No client file selected')
+            return
+        if file_locations['client2_file']:
+            client2 = pd.read_csv(file_locations['client2_file']).replace(np.nan, None)
+        if file_locations['client3_file']:
+            client3 = pd.read_csv(file_locations['client3_file']).replace(np.nan, None)
+        if file_locations['client4_file']:
+            client4 = pd.read_csv(file_locations['client4_file']).wreplace(np.nan, None)
+
         try:
-            x = eval(x)
-        except:
-            continue
-        if x is not None:
-            check_list_eval.append(x)
+            general_map = json.load(open('form_fields.json'))
+        except KeyError:
+            if not debug:
+                print('\x1b[2J\x1b[H')
+            print('Critical error: form_fields.json not found.' + '\n' + 'Make sure the file is in the same directory as this script.')
+            wait = input('Press any key to exit')
+            return
+        
+        try:
+            field_map = general_map[form]
+        except KeyError:
+            if not debug:
+                print('\x1b[2J\x1b[H')
+            print(f'Critical error: Form {form} not found in form_fields.json' + '\n' + 'Make sure the file is in the same directory \
+                as this script, and that the form name is correct.')
+            wait = input('Press any key to exit')
+            return
 
+        check_list = field_map['Check_list']
+        check_list_eval = []
+        # Utilize eval to convert strings to variables
+        for x in check_list:
+            try:
+                x = eval(x)
+            except:
+                continue
+            if x is not None:
+                check_list_eval.append(x)
+
+        return template, general_map, field_map, check_list_eval, client1, client2, client3, client4
+    
+    def checkmark(annotation, kid):
+        """
+        Checks a checkbox in a PDF by setting the /AS value of the annotation to the name of the /On appearance stream.
+
+        Args:
+            annotation (dict): The annotation dictionary for the checkbox annotation.
+
+        Returns:
+            None
+        """
+        try:
+            for child in annotation['/Kids']:
+                keys = child['/AP']['/N'].keys()
+                try:
+                    keys.remove('/Off')
+                except:
+                    pass
+                export = keys[0]
+
+                val_str = pdfrw.objects.pdfname.BasePdfName(export)
+                if child == kid:
+                    child.update(pdfrw.PdfDict(AS=val_str))
+                    break
+
+            annotation.update(pdfrw.PdfDict(V=val_str))
+        except:
+            pass
+
+    def text_box(annotation, value):
+        """
+        Fills in a text box in a PDF by setting the /V value of the annotation to the provided value.
+
+        Args:
+            annotation (dict): The annotation dictionary for the text box annotation.
+            value (str): The value to fill in the text box.
+        
+        Returns:
+            None
+        """
+        if value is None or re.search(r'\b(nan|None)\b', str(value)) is not None:
+            return
+        pdfstr = pdfstring.PdfString.encode(value)
+        annotation.update(pdfrw.PdfDict(V=pdfstr))
+
+    template, general_map, field_map, check_list, client1, client2, client3, client4 = prepare_data(file_locations, debug)
+    json_rep = ''
+    i = 0
+    # For each page
     for page in template.pages:
-        # For each page in the pdf
         annotations = page['/Annots']
         if annotations is None:
             continue
@@ -244,25 +320,30 @@ def form_filler(file_locations, debug=False):
                 if debug:
                     print(f'Text field: {key} {i}')
 
-                def text_box(annotation, value):
-                    if value is None or 'nan' in str(value):
-                        return
-                    pdfstr = pdfstring.PdfString.encode(value)
-                    annotation.update(pdfrw.PdfDict(V=pdfstr))
-
+                race_condition = True
+                # Search for fields defined specifically for the form
                 try:
-                    json_resp = field_map[key]
-
+                    json_rep = field_map[key]
+                    race_condition = False
                 except Exception:
                     if debug:
                         print(f'{key} not found in form_fields.json')
-                    continue
 
+                # If not found, search for general fields
+                if race_condition:
+                    try:
+                        json_rep = general_map['General'][key]
+                    except Exception:
+                        if debug:
+                            print(f'{key} not found in general fields')
+                        continue
+
+                # If found, use eval to convert strings to variables
                 try:
-                    value = eval(json_resp)
+                    value = eval(json_rep)
                 except Exception:
                     if debug:
-                        print(f'Error evaluating {json_resp}')
+                        print(f'Error evaluating {json_rep}')
                     continue
 
                 text_box(annotation, value)
@@ -271,51 +352,37 @@ def form_filler(file_locations, debug=False):
                 if ff and int(ff) & 1 << 15:
                     if debug:
                         print(f'Radio button field: {key} {i}')
-
-                    #TODO: radio button
+                        continue
                 else:
                     if debug:
                         print(f'Checkbox field: {key} {i}')
 
-                    def checkmark(annotation):
-                        try:
-                            for child in annotation['/Kids']:
-                                keys = child['/AP']['/N'].keys()
-                                try:
-                                    keys.remove('/Off')
-                                except:
-                                    pass
-                                export = keys[0]
-
-                                val_str = pdfrw.objects.pdfname.BasePdfName(export)
-                                if child == kid:
-                                    child.update(pdfrw.PdfDict(AS=val_str))
-                                    break
-
-                            annotation.update(pdfrw.PdfDict(V=val_str))
-
-                        except:
-                            pass
-
-                    if i in check_list_eval:
-                        checkmark(annotation)
+                    if i in check_list:
+                        checkmark(annotation, kid)
 
             elif ft == '/Ch':
-                #TODO: combo box
-
                 if ff and int(ff) & 1 << 17:
                     if debug:
-                        print('combo')
+                        print(f'Combo box field: {key} {i}')
+                        continue
                 else:
                     if debug:
-                        print('list')
+                        print(f'Dropdown field: {key} {i}')
+                        continue
+
+    try:
+        subprocess.run(["taskkill", "/f", "/im", "Acrobat.exe"], check=True)
+        time.sleep(1)
+    except subprocess.CalledProcessError:
+        if debug:
+            print(f"Error closing Acrobat")
 
     template.Root.AcroForm.update(pdfrw.PdfDict(NeedAppearances=pdfrw.PdfObject('true')))
     pdfrw.PdfWriter().write('filled.pdf', template)
 
 def main():
     file_locations = get_files()
-    form_filler(file_locations, debug=True)
+    form_filler(file_locations, debug=False)
 
     try:
         subprocess.Popen([ADOBE_ACROBAT_PATH, '/A', 'open', 'filled.pdf'], shell=True)
